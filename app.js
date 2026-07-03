@@ -13,6 +13,9 @@ const titleEl = document.querySelector("#report-title");
 const contentEl = document.querySelector("#content");
 const rawLinkEl = document.querySelector("#raw-link");
 const searchEl = document.querySelector("#search");
+const tocListEl = document.querySelector("#toc-list");
+
+let headingObserver = null;
 
 marked.use({
   gfm: true,
@@ -32,6 +35,84 @@ function setQuery(reportName) {
   const url = new URL(window.location.href);
   url.searchParams.set("report", reportName);
   window.history.replaceState({}, "", url);
+}
+
+function slugify(text, index) {
+  const base = text
+    .trim()
+    .toLowerCase()
+    .replace(/[^\p{Letter}\p{Number}]+/gu, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return base || `section-${index + 1}`;
+}
+
+function buildToc() {
+  if (headingObserver) {
+    headingObserver.disconnect();
+    headingObserver = null;
+  }
+
+  const headings = [...contentEl.querySelectorAll("h2")];
+  const usedIds = new Map();
+
+  headings.forEach((heading, index) => {
+    const rawId = slugify(heading.textContent || "", index);
+    const count = usedIds.get(rawId) || 0;
+    usedIds.set(rawId, count + 1);
+    heading.id = count ? `${rawId}-${count + 1}` : rawId;
+  });
+
+  tocListEl.replaceChildren(
+    ...headings.map((heading) => {
+      const li = document.createElement("li");
+      li.className = "toc-item";
+
+      const link = document.createElement("a");
+      link.href = `#${heading.id}`;
+      link.textContent = heading.textContent;
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        heading.scrollIntoView({ behavior: "smooth", block: "start" });
+        const url = new URL(window.location.href);
+        url.hash = heading.id;
+        window.history.replaceState({}, "", url);
+      });
+
+      li.append(link);
+      return li;
+    })
+  );
+
+  if (!headings.length) {
+    const li = document.createElement("li");
+    li.className = "toc-empty";
+    li.textContent = "No sections";
+    tocListEl.append(li);
+    return;
+  }
+
+  const links = [...tocListEl.querySelectorAll("a")];
+  headingObserver = new IntersectionObserver(
+    (entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+
+      if (!visible) return;
+
+      links.forEach((link) => {
+        link.classList.toggle("active", link.getAttribute("href") === `#${visible.target.id}`);
+      });
+    },
+    {
+      rootMargin: "-80px 0px -70% 0px",
+      threshold: [0, 1],
+    }
+  );
+
+  headings.forEach((heading) => headingObserver.observe(heading));
+  links[0]?.classList.add("active");
 }
 
 function renderList() {
@@ -73,6 +154,7 @@ async function loadReports() {
       contentEl.innerHTML = `<div class="empty">No reports yet</div>`;
       titleEl.textContent = "No reports yet";
       rawLinkEl.removeAttribute("href");
+      tocListEl.innerHTML = `<li class="toc-empty">No sections</li>`;
       return;
     }
 
@@ -98,10 +180,12 @@ async function loadReports() {
     } else {
       contentEl.innerHTML = `<div class="empty">No reports yet</div>`;
       titleEl.textContent = "No reports yet";
+      tocListEl.innerHTML = `<li class="toc-empty">No sections</li>`;
     }
   } catch (error) {
     titleEl.textContent = "Unable to load reports";
     contentEl.innerHTML = `<div class="error">${error.message}</div>`;
+    tocListEl.innerHTML = `<li class="toc-empty">No sections</li>`;
   }
 }
 
@@ -129,11 +213,14 @@ async function loadReport(report, options = {}) {
       link.rel = "noreferrer";
     });
 
+    buildToc();
+
     if (options.updateQuery !== false) {
       setQuery(report.name);
     }
   } catch (error) {
     contentEl.innerHTML = `<div class="error">${error.message}</div>`;
+    tocListEl.innerHTML = `<li class="toc-empty">No sections</li>`;
   }
 }
 
