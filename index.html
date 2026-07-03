@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>Intel Briefing</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Intel Briefing home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>Intel Briefing</span>
+      </a>
+      <div class="top-actions">
+        <a class="icon-link" href="https://github.com/vycz/intel-briefing-web/tree/main/data/daily_briefings" title="Reports on GitHub" aria-label="Reports on GitHub">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.77-.24.77-.54v-2.08c-3.13.68-3.79-1.34-3.79-1.34-.51-1.3-1.25-1.65-1.25-1.65-1.02-.7.08-.69.08-.69 1.13.08 1.73 1.16 1.73 1.16 1 .1.2 2.64 1.05 3.29 1.82.33.65-.72 1.17-1.11.94-.41-3.11-.35-6.38-1.55-6.38-3.44 0-.76.27-1.38.71-1.87-.07-.45-.31-1.56.11-3.44 0 0 .95-.3 3.1 1.16a10.74 10.74 0 0 1 5.64 0c2.15-1.46 3.09-1.16 3.09-1.16.43 1.88.16 2.5.08 3.45.44.49.7 1.1.7 1.87 0 2.69-1.64 3.28-3.2 3.45.25.22.47.65.47 1.31v1.94c0 .3.2.65.78.54A11.2 11.2 0 0 0 12 .8Z"/></svg>
+        </a>
+      </div>
+    </header>
+
+    <main class="shell">
+      <aside class="sidebar" aria-label="Report archive">
+        <div class="panel-head">
+          <h1>Daily Reports</h1>
+          <p id="report-count">Loading</p>
+        </div>
+        <div class="search-wrap">
+          <input id="search" type="search" placeholder="Search reports" autocomplete="off">
+        </div>
+        <ol id="report-list" class="report-list" aria-live="polite"></ol>
+      </aside>
+
+      <section class="reader" aria-label="Selected report">
+        <div class="reader-meta">
+          <div>
+            <p class="eyebrow">Latest Briefing</p>
+            <h2 id="report-title">Loading report</h2>
+          </div>
+          <a id="raw-link" class="raw-link" href="#" target="_blank" rel="noreferrer">Raw</a>
+        </div>
+        <div class="signal-strip" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <article id="content" class="markdown-body">
+          <div class="empty">Loading</div>
+        </article>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.7/dist/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
